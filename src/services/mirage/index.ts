@@ -73,6 +73,7 @@ export function makeServer() {
       });
       this.post('/orders');
       this.delete('/orders/:id');
+      this.put('/orders/:id');
 
       this.namespace = '';
       this.passthrough();

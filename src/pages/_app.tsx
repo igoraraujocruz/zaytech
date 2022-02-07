@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { theme } from '../styles/theme';
 import { makeServer } from '../services/mirage';
 import { queryClient } from '../services/queryClient';
+import { CurrentOrderProvider } from '../services/hooks/useCurrentOrder';
 
 if (process.env.NODE_ENV === 'development') {
   makeServer();
@@ -12,12 +13,14 @@ if (process.env.NODE_ENV === 'development') {
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={theme}>
-        <Component {...pageProps} />
-      </ChakraProvider>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    <CurrentOrderProvider>
+      <QueryClientProvider client={queryClient}>
+        <ChakraProvider theme={theme}>
+          <Component {...pageProps} />
+        </ChakraProvider>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </CurrentOrderProvider>
   );
 };
 

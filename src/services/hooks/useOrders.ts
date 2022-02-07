@@ -58,6 +58,10 @@ export const CurrentOrder = async (order: Order) => {
   console.log(test);
 };
 
+export const EditOrder = async (currentOrder: Order) => {
+  await api.put(`orders/${currentOrder.id}`, { ...currentOrder });
+};
+
 export function useOrders(page: number) {
   return useQuery(['orders', page], () => getOrders(page), {
     staleTime: 1000 * 5,

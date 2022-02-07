@@ -18,16 +18,11 @@ import { useState } from 'react';
 import { BiTrashAlt } from 'react-icons/bi';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Pagination from '../../components/Pagination';
-import {
-  useOrders,
-  deleteOrders,
-  CurrentOrder,
-} from '../../services/hooks/useOrders';
+import { useOrders, deleteOrders } from '../../services/hooks/useOrders';
+import { useCurrentOrder } from '../../services/hooks/useCurrentOrder';
 
 const Order = () => {
-  const [isEditing, setIsEditing] = useState(false);
-
-  const edit = () => setIsEditing(true);
+  const { currentOrder, GetCurrentOrder } = useCurrentOrder();
 
   const [page, setPage] = useState(1);
   const { data, isLoading, error, isFetching } = useOrders(page);
@@ -106,9 +101,8 @@ const Order = () => {
                         <HStack justifyContent="center">
                           <AiOutlineEdit
                             size={22}
-                            onClick={() => CurrentOrder(order)}
+                            onClick={() => GetCurrentOrder(order)}
                           />
-                          {isEditing && <h1>Está editando</h1>}
                           <BiTrashAlt
                             size={22}
                             cursor="pointer"
