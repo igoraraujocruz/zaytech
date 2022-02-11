@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { api } from '../api';
 import { queryClient } from '../queryClient';
@@ -8,7 +7,7 @@ type Order = {
   name: string;
   description?: string;
   contact: string;
-  requester: string;
+  requesterId: string;
   client: string;
   createdAt: Date;
 };
@@ -27,12 +26,12 @@ export async function getOrders(page: number): Promise<GetOrdersResponse> {
 
   const totalCount = Number(headers['x-total-count']);
 
-  const orders = data.orders.map(order => {
+  const orders = data.map(order => {
     return {
       id: order.id,
       name: order.name,
       description: order.description,
-      requester: order.requester,
+      requesterId: order.requesterId,
       client: order.client,
       contact: order.contact,
       createdAt: new Date(order.createdAt).toLocaleDateString('pt-BR', {
@@ -52,18 +51,6 @@ export async function deleteOrders(orderId: string) {
   queryClient.invalidateQueries('orders');
 }
 
-export const CurrentOrder = async (order: Order) => {
-  const [test, setTest] = useState('');
-  setTest(order.name);
-  console.log(test);
-};
-
-export const EditOrder = async (currentOrder: Order) => {
-  await api.put(`orders/${currentOrder.id}`, { ...currentOrder });
-};
-
 export function useOrders(page: number) {
-  return useQuery(['orders', page], () => getOrders(page), {
-    staleTime: 1000 * 5,
-  });
+  return useQuery(['orders', page], () => getOrders(page));
 }

@@ -16,7 +16,6 @@ import { Input } from '../../components/Form/Input';
 import { api } from '../../services/api';
 import { queryClient } from '../../services/queryClient';
 import { useCurrentOrder } from '../../services/hooks/useCurrentOrder';
-import { EditOrder } from '../../services/hooks/useOrders';
 
 type CreateOrderFormData = {
   name: string;
@@ -25,28 +24,18 @@ type CreateOrderFormData = {
   contact: string;
 };
 
-interface Order extends CreateOrderFormData {
-  id: string;
-  createdAt: Date;
-  requester: string;
-}
-
 const createOrderFormSchema = yup.object().shape({
   name: yup.string().required('Nome obrigatório'),
   client: yup.string().required('Nome do cliente é obrigatório'),
   description: yup.string(),
-  contact: yup.string(),
+  contact: yup.string().required('O contato é necessário'),
 });
 
 const CreateOrder = () => {
   const createOrder = useMutation(
     async (order: CreateOrderFormData) => {
       const response = await api.post('orders', {
-        order: {
-          ...order,
-          created_at: new Date(),
-          requester: 'solicitante teste',
-        },
+        ...order,
       });
       return response.data.order;
     },
@@ -56,28 +45,21 @@ const CreateOrder = () => {
       },
     },
   );
+  const { currentOrder, ClearCurrentOrder, EditOrder } = useCurrentOrder();
 
-  const { register, handleSubmit, formState, reset } = useForm({
+  const { register, handleSubmit, formState, reset, setValue } = useForm({
     resolver: yupResolver(createOrderFormSchema),
   });
 
   const { errors } = formState;
-
-  // const handleCreateOrder: SubmitHandler<
-  //   CreateOrderFormData
-  // > = async values => {
-  //   await createOrder.mutateAsync(values);
-  //   reset();
-  // };
-
-  const { currentOrder, ClearCurrentOrder } = useCurrentOrder();
 
   const handleVerifyOrder = async values => {
     if (currentOrder.name === undefined) {
       await createOrder.mutateAsync(values);
       reset();
     } else {
-      EditOrder(currentOrder);
+      EditOrder(currentOrder, values);
+      ClearCurrentOrder();
     }
   };
 
@@ -108,28 +90,28 @@ const CreateOrder = () => {
                 label="Pedido"
                 {...register('name')}
                 error={errors.name}
-                defaultValue={currentOrder?.name}
+                {...setValue('name', currentOrder?.name)}
               />
               <Input
                 name="client"
                 label="Cliente"
                 {...register('client')}
                 error={errors.client}
-                defaultValue={currentOrder?.client}
+                {...setValue('client', currentOrder?.client)}
               />
               <Input
                 name="description"
                 label="Descrição"
                 {...register('description')}
                 error={errors.description}
-                defaultValue={currentOrder?.description}
+                {...setValue('description', currentOrder?.description)}
               />
               <Input
                 name="contact"
                 label="Contato"
                 {...register('contact')}
                 error={errors.contact}
-                defaultValue={currentOrder?.contact}
+                {...setValue('contact', currentOrder?.contact)}
               />
             </SimpleGrid>
           </VStack>

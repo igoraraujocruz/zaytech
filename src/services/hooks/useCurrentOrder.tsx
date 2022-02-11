@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { api } from '../api';
+import { queryClient } from '../queryClient';
 
 interface CurrentOrderProviderProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ interface Order {
   name: string;
   description?: string;
   contact: string;
-  requester: string;
+  requesterId: string;
   client: string;
   createdAt: Date;
 }
@@ -25,6 +26,7 @@ interface CurrentContextData {
   currentOrder: Order;
   GetCurrentOrder: (order: Order) => Promise<void>;
   ClearCurrentOrder: () => Promise<void>;
+  EditOrder: (currentOrder: Order, values) => Promise<void>;
 }
 
 const CurrentOrderContext = createContext<CurrentContextData>(
@@ -44,9 +46,17 @@ export const CurrentOrderProvider = ({
     setCurrentOrder(undefined);
   }, []);
 
+  const EditOrder = async (currentOrder: Order, values) => {
+    await api.put(`orders/${currentOrder.id}`, {
+      ...values,
+    });
+
+    queryClient.invalidateQueries('orders');
+  };
+
   return (
     <CurrentOrderContext.Provider
-      value={{ currentOrder, GetCurrentOrder, ClearCurrentOrder }}
+      value={{ currentOrder, GetCurrentOrder, ClearCurrentOrder, EditOrder }}
     >
       {children}
     </CurrentOrderContext.Provider>

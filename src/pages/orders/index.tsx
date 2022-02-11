@@ -22,7 +22,7 @@ import { useOrders, deleteOrders } from '../../services/hooks/useOrders';
 import { useCurrentOrder } from '../../services/hooks/useCurrentOrder';
 
 const Order = () => {
-  const { currentOrder, GetCurrentOrder } = useCurrentOrder();
+  const { GetCurrentOrder } = useCurrentOrder();
 
   const [page, setPage] = useState(1);
   const { data, isLoading, error, isFetching } = useOrders(page);
@@ -79,7 +79,7 @@ const Order = () => {
                             {order.name}
                           </Text>
                           <Text fontSize="sm" color="gray.100">
-                            {order?.description}
+                            {order.description}
                           </Text>
                         </Box>
                       </Td>
@@ -95,7 +95,7 @@ const Order = () => {
                         </Td>
                       )}
                       <Td fontSize="sm" color="gray.100">
-                        {order.requester}
+                        {order.requesterId}
                       </Td>
                       <Td>
                         <HStack justifyContent="center">
