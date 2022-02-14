@@ -1,11 +1,7 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 import Router from 'next/router';
 import { setCookie, destroyCookie } from 'nookies';
 import { api } from '../api';
-
-type User = {
-  email: string;
-};
 
 type SignInCredentials = {
   email: string;
@@ -13,9 +9,7 @@ type SignInCredentials = {
 };
 
 type AuthContextData = {
-  user: User;
   signIn(credentials: SignInCredentials): Promise<void>;
-  isAuthenticated: boolean;
 };
 
 type AuthProviderProps = {
@@ -32,10 +26,6 @@ export function signOut() {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User>({} as User);
-
-  const isAuthenticated = !!user;
-
   async function signIn({ email, password }: SignInCredentials) {
     try {
       const response = await api.post('sessions', {
@@ -55,7 +45,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         path: '/',
       });
 
-      api.defaults.headers.common.Authorization = `Bearer ${token}`;
+      api.defaults.headers.common.authorization = `Bearer ${token}`;
 
       Router.push('/dashboard');
     } catch (err) {
@@ -64,9 +54,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ signIn }}>{children}</AuthContext.Provider>
   );
 };
 
