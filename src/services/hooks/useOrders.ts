@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { api } from '../api';
+import { api } from '../apiClient';
 import { queryClient } from '../queryClient';
 
 type Order = {
@@ -10,28 +10,19 @@ type Order = {
   requesterId: string;
   client: string;
   createdAt: Date;
+  requester: {
+    name: string;
+  };
 };
 
-type GetOrdersResponse = {
-  totalCount: number;
-  orders: Order[];
-};
-
-export async function getOrders(page: number): Promise<GetOrdersResponse> {
-  const { data, headers } = await api.get('/orders', {
-    params: {
-      page,
-    },
-  });
-
-  const totalCount = Number(headers['x-total-count']);
+export const getOrders = async (): Promise<Order[]> => {
+  const { data } = await api.get('/orders');
 
   const orders = data.map(order => {
     return {
       id: order.id,
       name: order.name,
       description: order.description,
-      requesterId: order.requesterId,
       client: order.client,
       contact: order.contact,
       createdAt: new Date(order.createdAt).toLocaleDateString('pt-BR', {
@@ -39,11 +30,14 @@ export async function getOrders(page: number): Promise<GetOrdersResponse> {
         month: 'long',
         year: 'numeric',
       }),
+      requester: {
+        name: order.requester.name,
+      },
     };
   });
 
-  return { orders, totalCount };
-}
+  return orders;
+};
 
 export async function deleteOrders(orderId: string) {
   await api.delete(`/orders/${orderId}`);
@@ -51,6 +45,6 @@ export async function deleteOrders(orderId: string) {
   queryClient.invalidateQueries('orders');
 }
 
-export function useOrders(page: number) {
-  return useQuery(['orders', page], () => getOrders(page));
+export function useOrders() {
+  return useQuery(['orders'], () => getOrders());
 }

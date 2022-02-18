@@ -11,7 +11,7 @@ export function withSSRGuest<P>(fn: GetServerSideProps<P>) {
   ): Promise<GetServerSidePropsResult<P>> => {
     const cookies = parseCookies(ctx);
 
-    if (cookies['zaycon.token']) {
+    if (cookies['zaytech.token']) {
       return {
         redirect: {
           destination: '/dashboard',

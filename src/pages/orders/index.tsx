@@ -14,18 +14,15 @@ import {
   useBreakpointValue,
   HStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import { BiTrashAlt } from 'react-icons/bi';
 import { AiOutlineEdit } from 'react-icons/ai';
-import Pagination from '../../components/Pagination';
 import { useOrders, deleteOrders } from '../../services/hooks/useOrders';
 import { useCurrentOrder } from '../../services/hooks/useCurrentOrder';
 
 const Order = () => {
-  const { GetCurrentOrder } = useCurrentOrder();
+  const { GetCurrentOrder, inputSearch } = useCurrentOrder();
 
-  const [page, setPage] = useState(1);
-  const { data, isLoading, error, isFetching } = useOrders(page);
+  const { data, isLoading, error, isFetching } = useOrders();
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
@@ -52,23 +49,46 @@ const Order = () => {
               <Text>Falha ao obter dados dos pedidos.</Text>
             </Flex>
           ) : (
-            <>
-              <Table colorScheme="whiteAlpha">
-                <Thead>
-                  <Tr>
-                    <Th px={['4', '4', '6']} color="gray.300" width="8">
-                      <Checkbox colorScheme="pink" />
-                    </Th>
-                    <Th>Nome/Descrição</Th>
-                    <Th>Cliente</Th>
-                    <Th>Contato</Th>
-                    <Th>Data do pedido</Th>
-                    <Th>Solicitante</Th>
-                    <Th width="8" />
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {data.orders.map(order => (
+            <Table colorScheme="whiteAlpha">
+              <Thead>
+                <Tr>
+                  <Th px={['4', '4', '6']} color="gray.300" width="8">
+                    <Checkbox colorScheme="pink" />
+                  </Th>
+                  <Th>Nome/Descrição</Th>
+                  <Th>Cliente</Th>
+                  <Th>Contato</Th>
+                  <Th>Data do pedido</Th>
+                  <Th>Solicitante</Th>
+                  <Th width="8" />
+                </Tr>
+              </Thead>
+              <Tbody>
+                {data
+                  .filter(val => {
+                    if (inputSearch === '') {
+                      return val;
+                    }
+
+                    if (
+                      val.name
+                        .toLowerCase()
+                        .includes(inputSearch.toLowerCase()) ||
+                      val.client
+                        .toLowerCase()
+                        .includes(inputSearch.toLowerCase()) ||
+                      val.requester.name
+                        .toLowerCase()
+                        .includes(inputSearch.toLowerCase()) ||
+                      val.contact
+                        .toLowerCase()
+                        .includes(inputSearch.toLowerCase())
+                    ) {
+                      return val;
+                    }
+                    return null;
+                  })
+                  .map(order => (
                     <Tr key={order.id}>
                       <Td px={['4', '4', '6']}>
                         <Checkbox colorScheme="pink" />
@@ -95,7 +115,7 @@ const Order = () => {
                         </Td>
                       )}
                       <Td fontSize="sm" color="gray.100">
-                        {order.requesterId}
+                        {order.requester.name}
                       </Td>
                       <Td>
                         <HStack justifyContent="center">
@@ -112,14 +132,8 @@ const Order = () => {
                       </Td>
                     </Tr>
                   ))}
-                </Tbody>
-              </Table>
-              <Pagination
-                totalCountOfRegisters={data.totalCount}
-                currentPage={page}
-                onPageChange={setPage}
-              />
-            </>
+              </Tbody>
+            </Table>
           )}
         </Box>
       </Flex>

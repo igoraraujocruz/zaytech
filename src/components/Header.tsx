@@ -1,7 +1,11 @@
 import { Flex, Text, Input, Icon, HStack, Box, Avatar } from '@chakra-ui/react';
 import { RiSearchLine, RiNotificationLine } from 'react-icons/ri';
+import { useCurrentOrder } from '../services/hooks/useCurrentOrder';
+import { signOut } from '../services/hooks/useAuth';
 
 const Header = () => {
+  const { GetOrderByFilter } = useCurrentOrder();
+
   return (
     <Flex
       as="header"
@@ -39,6 +43,7 @@ const Header = () => {
           mr="4"
           placeholder="Buscar"
           _placeholder={{ color: 'gray.400' }}
+          onChange={e => GetOrderByFilter(e.target.value)}
         />
         <Icon as={RiSearchLine} fontSize="20" />
       </Flex>
@@ -54,6 +59,9 @@ const Header = () => {
           borderColor="gray.700"
         >
           <Icon as={RiNotificationLine} fontSize="20" />
+          <button type="button" onClick={() => signOut()}>
+            SignOut
+          </button>
         </HStack>
 
         <Flex align="center">

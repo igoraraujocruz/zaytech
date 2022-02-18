@@ -13,9 +13,10 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from 'react-query';
 import { Input } from '../../components/Form/Input';
-import { api } from '../../services/api';
 import { queryClient } from '../../services/queryClient';
 import { useCurrentOrder } from '../../services/hooks/useCurrentOrder';
+import { api } from '../../services/apiClient';
+import { withSSRGuest } from '../../utils/WithSSRGuest';
 
 type CreateOrderFormData = {
   name: string;
@@ -28,7 +29,7 @@ const createOrderFormSchema = yup.object().shape({
   name: yup.string().required('Nome obrigatório'),
   client: yup.string().required('Nome do cliente é obrigatório'),
   description: yup.string(),
-  contact: yup.string().required('O contato é necessário'),
+  contact: yup.string().required('Contato é um campo obrigatório'),
 });
 
 const CreateOrder = () => {
@@ -60,6 +61,7 @@ const CreateOrder = () => {
     } else {
       EditOrder(currentOrder, values);
       ClearCurrentOrder();
+      console.log(currentOrder);
     }
   };
 

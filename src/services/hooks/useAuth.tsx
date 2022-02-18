@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useEffect } from 'react';
 import Router from 'next/router';
 import { setCookie, destroyCookie } from 'nookies';
-import { api } from '../api';
+import { api } from '../apiClient';
 
 type SignInCredentials = {
   email: string;
@@ -18,14 +18,31 @@ type AuthProviderProps = {
 
 export const AuthContext = createContext({} as AuthContextData);
 
+let authChannel: BroadcastChannel;
+
 export function signOut() {
   destroyCookie(undefined, 'zaytech.token');
   destroyCookie(undefined, 'zaytech.refreshToken');
+
+  authChannel.postMessage('signOut');
 
   Router.push('/');
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
+  useEffect(() => {
+    authChannel = new BroadcastChannel('auth');
+    authChannel.onmessage = message => {
+      switch (message.data) {
+        case 'signOut':
+          signOut();
+          break;
+        default:
+          break;
+      }
+    };
+  }, []);
+
   async function signIn({ email, password }: SignInCredentials) {
     try {
       const response = await api.post('sessions', {
@@ -45,7 +62,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         path: '/',
       });
 
-      api.defaults.headers.common.authorization = `Bearer ${token}`;
+      api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
       Router.push('/dashboard');
     } catch (err) {

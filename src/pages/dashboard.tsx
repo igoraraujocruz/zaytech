@@ -1,8 +1,8 @@
 import { Box, Flex } from '@chakra-ui/react';
 import Header from '../components/Header';
+import { withSSRAuth } from '../utils/WithSSRAuth';
 import Order from './orders';
 import CreateOrder from './orders/create';
-import { withSSRGuest } from '../utils/WithSSRGuest';
 
 const Dashboard = () => {
   return (
@@ -16,10 +16,10 @@ const Dashboard = () => {
   );
 };
 
-export const getServerSideProps = withSSRGuest(async ctx => {
+export default Dashboard;
+
+export const getServerSideProps = withSSRAuth(async ctx => {
   return {
     props: {},
   };
 });
-
-export default Dashboard;
